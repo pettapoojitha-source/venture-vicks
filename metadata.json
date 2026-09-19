@@ -1,0 +1,6 @@
+{
+  "name": "Venture Wicks",
+  "description": "Light the way from startup idea to investor-ready pitch. Build, challenge, practice, and present startup pitches with AI.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
