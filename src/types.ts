@@ -1,5 +1,7 @@
 export type VentureStage = 'Idea Stage' | 'Prototype / MVP' | 'Early Traction' | 'Growth';
 
+export type UiDesignMode = 'editorial' | 'executive';
+
 export type AppView = 
   | 'landing' 
   | 'dashboard' 

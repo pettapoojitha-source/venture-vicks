@@ -4,7 +4,8 @@ import {
   UserProfile, 
   QuestionnaireData, 
   PitchSlide, 
-  AppView 
+  AppView,
+  UiDesignMode 
 } from './types';
 import { 
   getStoredVentures, 
@@ -27,13 +28,31 @@ import { InvestorRoomView } from './components/InvestorRoomView';
 import { PresentationMode } from './components/PresentationMode';
 import { WicksAiDrawer } from './components/WicksAiDrawer';
 
+// Executive Obsidian UI Suite
+import { ExecutiveNavbar } from './components/executive/ExecutiveNavbar';
+import { ExecutiveLanding } from './components/executive/ExecutiveLanding';
+import { ExecutiveDashboard } from './components/executive/ExecutiveDashboard';
+import { ExecutiveStudio } from './components/executive/ExecutiveStudio';
+import { ExecutiveCritic } from './components/executive/ExecutiveCritic';
+import { ExecutiveAnalysis } from './components/executive/ExecutiveAnalysis';
+import { ExecutiveInvestorRoom } from './components/executive/ExecutiveInvestorRoom';
+
 export default function App() {
   const [currentView, setCurrentView] = useState<AppView>('landing');
+  const [uiMode, setUiMode] = useState<UiDesignMode>(() => {
+    return (localStorage.getItem('venture_wicks_ui_mode') as UiDesignMode) || 'executive';
+  });
   const [currentUser, setCurrentUserState] = useState<UserProfile | null>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [ventures, setVentures] = useState<Venture[]>([]);
   const [activeVenture, setActiveVenture] = useState<Venture | null>(null);
   const [isPresentationOpen, setIsPresentationOpen] = useState(false);
+
+  const handleToggleUiMode = () => {
+    const nextMode: UiDesignMode = uiMode === 'executive' ? 'editorial' : 'executive';
+    setUiMode(nextMode);
+    localStorage.setItem('venture_wicks_ui_mode', nextMode);
+  };
 
   // Initialize data on mount
   useEffect(() => {
@@ -247,54 +266,101 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF8F5] text-[#191716] flex flex-col font-sans selection:bg-[#E8732A]/20">
-      {/* Top Navbar (always visible except on presentation full-screen) */}
+    <div
+      className={`min-h-screen flex flex-col font-sans ${
+        uiMode === 'executive'
+          ? 'bg-[#090A0F] text-slate-100 selection:bg-[#FF5722]/30 selection:text-[#FF8A65]'
+          : 'bg-[#FAF8F5] text-[#191716] selection:bg-[#E8732A]/20'
+      }`}
+    >
+      {/* Top Navbar */}
       {currentView !== 'landing' && (
-        <Navbar
-          currentView={currentView}
-          onNavigate={(view: AppView) => setCurrentView(view)}
-          currentUser={currentUser}
-          onOpenAuth={() => setIsAuthModalOpen(true)}
-          onSignOut={handleSignOut}
-          ventures={ventures}
-          activeVenture={activeVenture}
-          onSelectVenture={(v: Venture) => {
-            setActiveVenture(v);
-            if (currentView === 'dashboard') {
-              setCurrentView('studio');
-            }
-          }}
-          onCreateNewVenture={() => setCurrentView('wizard')}
-          onStartPresentation={() => setIsPresentationOpen(true)}
-        />
+        uiMode === 'executive' ? (
+          <ExecutiveNavbar
+            currentView={currentView}
+            onNavigate={(view: AppView) => setCurrentView(view)}
+            currentUser={currentUser}
+            onOpenAuth={() => setIsAuthModalOpen(true)}
+            onSignOut={handleSignOut}
+            ventures={ventures}
+            activeVenture={activeVenture}
+            onSelectVenture={(v: Venture) => {
+              setActiveVenture(v);
+              if (currentView === 'dashboard') {
+                setCurrentView('studio');
+              }
+            }}
+            onCreateNewVenture={() => setCurrentView('wizard')}
+            onStartPresentation={() => setIsPresentationOpen(true)}
+            uiMode={uiMode}
+            onToggleUiMode={handleToggleUiMode}
+          />
+        ) : (
+          <Navbar
+            currentView={currentView}
+            onNavigate={(view: AppView) => setCurrentView(view)}
+            currentUser={currentUser}
+            onOpenAuth={() => setIsAuthModalOpen(true)}
+            onSignOut={handleSignOut}
+            ventures={ventures}
+            activeVenture={activeVenture}
+            onSelectVenture={(v: Venture) => {
+              setActiveVenture(v);
+              if (currentView === 'dashboard') {
+                setCurrentView('studio');
+              }
+            }}
+            onCreateNewVenture={() => setCurrentView('wizard')}
+            onStartPresentation={() => setIsPresentationOpen(true)}
+            uiMode={uiMode}
+            onToggleUiMode={handleToggleUiMode}
+          />
+        )
       )}
 
       {/* Main View Router */}
       <main className="flex-1">
         {currentView === 'landing' && (
-          <LandingPage
-            onStartVenture={() => {
-              if (currentUser) {
-                setCurrentView('wizard');
-              } else {
-                setCurrentView('wizard');
-              }
-            }}
-            onExploreDemo={handleExploreDemo}
-            onOpenAuth={() => setIsAuthModalOpen(true)}
-          />
+          uiMode === 'executive' ? (
+            <ExecutiveLanding
+              onStartNew={() => setCurrentView('wizard')}
+              onExploreDemo={handleExploreDemo}
+              uiMode={uiMode}
+              onToggleUiMode={handleToggleUiMode}
+            />
+          ) : (
+            <LandingPage
+              onStartVenture={() => setCurrentView('wizard')}
+              onExploreDemo={handleExploreDemo}
+              onOpenAuth={() => setIsAuthModalOpen(true)}
+              uiMode={uiMode}
+              onToggleUiMode={handleToggleUiMode}
+            />
+          )
         )}
 
         {currentView === 'dashboard' && (
-          <Dashboard
-            currentUser={currentUser}
-            ventures={ventures}
-            onSelectVenture={handleSelectVenture}
-            onCreateNewVenture={() => setCurrentView('wizard')}
-            onDuplicateVenture={handleDuplicateVenture}
-            onRenameVenture={handleRenameVenture}
-            onDeleteVenture={handleDeleteVenture}
-          />
+          uiMode === 'executive' ? (
+            <ExecutiveDashboard
+              ventures={ventures}
+              activeVenture={activeVenture}
+              onSelectVenture={handleSelectVenture}
+              onCreateNewVenture={() => setCurrentView('wizard')}
+              onNavigateToStudio={() => setCurrentView('studio')}
+              onNavigateToCritic={() => setCurrentView('critic')}
+              onStartPresentation={() => setIsPresentationOpen(true)}
+            />
+          ) : (
+            <Dashboard
+              currentUser={currentUser}
+              ventures={ventures}
+              onSelectVenture={handleSelectVenture}
+              onCreateNewVenture={() => setCurrentView('wizard')}
+              onDuplicateVenture={handleDuplicateVenture}
+              onRenameVenture={handleRenameVenture}
+              onDeleteVenture={handleDeleteVenture}
+            />
+          )
         )}
 
         {currentView === 'wizard' && (
@@ -306,36 +372,70 @@ export default function App() {
         )}
 
         {currentView === 'studio' && activeVenture && (
-          <PitchStudio
-            venture={activeVenture}
-            onUpdateVenture={handleUpdateActiveVenture}
-            onStartPresentation={() => setIsPresentationOpen(true)}
-            onNavigateToCritic={() => setCurrentView('critic')}
-          />
+          uiMode === 'executive' ? (
+            <ExecutiveStudio
+              venture={activeVenture}
+              onUpdateVenture={handleUpdateActiveVenture}
+              onStartPresentation={() => setIsPresentationOpen(true)}
+              onNavigateToCritic={() => setCurrentView('critic')}
+            />
+          ) : (
+            <PitchStudio
+              venture={activeVenture}
+              onUpdateVenture={handleUpdateActiveVenture}
+              onStartPresentation={() => setIsPresentationOpen(true)}
+              onNavigateToCritic={() => setCurrentView('critic')}
+            />
+          )
         )}
 
         {currentView === 'critic' && activeVenture && (
-          <VcCriticView
-            venture={activeVenture}
-            onUpdateVenture={handleUpdateActiveVenture}
-            onNavigateToStudio={() => setCurrentView('studio')}
-          />
+          uiMode === 'executive' ? (
+            <ExecutiveCritic
+              venture={activeVenture}
+              onUpdateVenture={handleUpdateActiveVenture}
+              onNavigateToSlide={(slideNum) => {
+                setCurrentView('studio');
+              }}
+            />
+          ) : (
+            <VcCriticView
+              venture={activeVenture}
+              onUpdateVenture={handleUpdateActiveVenture}
+              onNavigateToStudio={() => setCurrentView('studio')}
+            />
+          )
         )}
 
         {currentView === 'analysis' && activeVenture && (
-          <VentureAnalysisView
-            venture={activeVenture}
-            onUpdateVenture={handleUpdateActiveVenture}
-            onNavigateToStudio={() => setCurrentView('studio')}
-          />
+          uiMode === 'executive' ? (
+            <ExecutiveAnalysis
+              venture={activeVenture}
+              onUpdateVenture={handleUpdateActiveVenture}
+              onNavigateToStudio={() => setCurrentView('studio')}
+            />
+          ) : (
+            <VentureAnalysisView
+              venture={activeVenture}
+              onUpdateVenture={handleUpdateActiveVenture}
+              onNavigateToStudio={() => setCurrentView('studio')}
+            />
+          )
         )}
 
         {currentView === 'investor' && activeVenture && (
-          <InvestorRoomView
-            venture={activeVenture}
-            onUpdateVenture={handleUpdateActiveVenture}
-            onNavigateToStudio={() => setCurrentView('studio')}
-          />
+          uiMode === 'executive' ? (
+            <ExecutiveInvestorRoom
+              venture={activeVenture}
+              onUpdateVenture={handleUpdateActiveVenture}
+            />
+          ) : (
+            <InvestorRoomView
+              venture={activeVenture}
+              onUpdateVenture={handleUpdateActiveVenture}
+              onNavigateToStudio={() => setCurrentView('studio')}
+            />
+          )
         )}
       </main>
 

@@ -15,8 +15,10 @@ import {
   LogOut,
   Plus,
   Compass,
-  CheckCircle2
+  CheckCircle2,
+  Palette
 } from 'lucide-react';
+import { UiDesignMode } from '../types';
 
 interface NavbarProps {
   currentView: AppView;
@@ -29,6 +31,8 @@ interface NavbarProps {
   onSelectVenture: (venture: Venture) => void;
   onCreateNewVenture: () => void;
   onStartPresentation: () => void;
+  uiMode?: UiDesignMode;
+  onToggleUiMode?: () => void;
 }
 
 export function Navbar({
@@ -41,7 +45,9 @@ export function Navbar({
   activeVenture,
   onSelectVenture,
   onCreateNewVenture,
-  onStartPresentation
+  onStartPresentation,
+  uiMode,
+  onToggleUiMode
 }: NavbarProps) {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showVentureSelector, setShowVentureSelector] = useState(false);
@@ -194,6 +200,21 @@ export function Navbar({
 
         {/* Right: Quick actions + User menu */}
         <div className="flex items-center gap-2.5">
+          {onToggleUiMode && (
+            <button
+              onClick={onToggleUiMode}
+              title="Switch UI Design to Executive Obsidian"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-[#F0E9DF] hover:bg-[#E7DFC5] border border-[#DDD3C5] text-xs font-medium text-[#2E2824] transition-all"
+            >
+              <Palette className="w-3.5 h-3.5 text-[#D96B27]" />
+              <span className="hidden md:inline text-[#696159]">UI:</span>
+              <span className="font-semibold">Editorial</span>
+              <span className="text-[10px] text-[#883607] bg-[#D96B27]/10 px-1 py-0.2 rounded border border-[#D96B27]/20 font-mono">
+                SWITCH
+              </span>
+            </button>
+          )}
+
           <button
             onClick={onCreateNewVenture}
             className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium bg-[#191716] text-white hover:bg-[#332F2A] transition-colors shadow-xs"

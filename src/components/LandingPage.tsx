@@ -11,17 +11,21 @@ import {
   Flame,
   ChevronRight,
   TrendingUp,
-  FileText
+  FileText,
+  Palette
 } from 'lucide-react';
 import { VentureLogo } from './VentureLogo';
+import { UiDesignMode } from '../types';
 
 interface LandingPageProps {
   onStartVenture: () => void;
   onExploreDemo: () => void;
   onOpenAuth: () => void;
+  uiMode?: UiDesignMode;
+  onToggleUiMode?: () => void;
 }
 
-export function LandingPage({ onStartVenture, onExploreDemo, onOpenAuth }: LandingPageProps) {
+export function LandingPage({ onStartVenture, onExploreDemo, onOpenAuth, uiMode, onToggleUiMode }: LandingPageProps) {
   const [activeCard, setActiveCard] = useState<number>(0);
 
   const featureCards = [
@@ -74,10 +78,25 @@ export function LandingPage({ onStartVenture, onExploreDemo, onOpenAuth }: Landi
         <div className="max-w-7xl mx-auto px-6 h-18 flex items-center justify-between">
           <VentureLogo size="md" showTagline={false} />
           
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
+            {onToggleUiMode && (
+              <button
+                onClick={onToggleUiMode}
+                title="Switch to Executive Obsidian Design"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#F0E9DF] hover:bg-[#E6DEC4] border border-[#DDD3C5] text-xs font-medium text-[#2E2824] transition-all"
+              >
+                <Palette className="w-3.5 h-3.5 text-[#D96B27]" />
+                <span className="hidden sm:inline text-[#696159]">UI Mode:</span>
+                <span className="font-semibold">Editorial</span>
+                <span className="text-[10px] text-[#883607] bg-[#D96B27]/10 px-1 py-0.2 rounded border border-[#D96B27]/20 font-mono">
+                  SWITCH
+                </span>
+              </button>
+            )}
+
             <button
               onClick={onExploreDemo}
-              className="text-xs font-medium text-[#6B635A] hover:text-[#191716] transition-colors px-3 py-2"
+              className="hidden sm:inline-block text-xs font-medium text-[#6B635A] hover:text-[#191716] transition-colors px-3 py-2"
             >
               Explore Demo Venture
             </button>
